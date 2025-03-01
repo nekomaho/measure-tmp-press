@@ -45,6 +45,9 @@ embedded-sdmmc = "0.7.0"
 # For  SSDL1306 OLED
 ssd1306 = "0.9.0"
 
+# For BME280
+bme280 = "0.5.1"
+
 [patch.crates-io]
 embassy-embedded-hal = { git = "https://github.com/embassy-rs/embassy", rev = "2e7a2b61275d70d7d09cb676490e2cba4d2bde3f" }
 embassy-sync = { git = "https://github.com/embassy-rs/embassy", rev = "2e7a2b61275d70d7d09cb676490e2cba4d2bde3f" }

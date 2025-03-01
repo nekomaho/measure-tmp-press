@@ -117,6 +117,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bme280"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "169ac81b9123f316fde5b0e00175294dcdcdd800c1a6c92a4b58caf42a14cf1f"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "maybe-async-cfg",
+]
+
+[[package]]
 name = "bt-hci"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1078,6 +1088,7 @@ dependencies = [
 name = "measure_tmp_press"
 version = "0.1.0"
 dependencies = [
+ "bme280",
  "cortex-m",
  "cortex-m-rt",
  "critical-section",
