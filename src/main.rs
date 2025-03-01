@@ -21,7 +21,7 @@ use embedded_graphics::{
     text::{Baseline, Text},
 };
 use embedded_hal_1;
-use ssd1306::{prelude::*, I2CDisplayInterface, Ssd1306};
+use ssd1306::{prelude::*, I2CDisplayInterface, Ssd1306, mode::BufferedGraphicsMode};
 use bme280::i2c::BME280;
 use {defmt_rtt as _, panic_probe as _};
 
@@ -48,7 +48,7 @@ fn f32_to_string(value: f32) -> String<16> {
 
 fn get_bme280_result<I2C>(bme280: &mut BME280<I2C>) -> String<128>
 where
-    I2C: embedded_hal_1::i2c::ErrorType, I2C: embedded_hal_1::i2c::I2c // measure ofr BME280 requires this setting
+    I2C: embedded_hal_1::i2c::ErrorType, I2C: embedded_hal_1::i2c::I2c // measure of BME280 requires this setting
 {
     let measurements = bme280.measure(&mut Delay).unwrap();
     let temperature: String<16>= f32_to_string(measurements.temperature);
@@ -61,6 +61,22 @@ where
     write!(&mut result, "{}{}\n", "h:", humidity.as_str()).unwrap();
     write!(&mut result, "{}{}", "p:", pressure.as_str()).unwrap();
     result
+}
+
+fn output_oled<I2C>(display: &mut Ssd1306<I2CInterface<I2C>, DisplaySize128x64, BufferedGraphicsMode<DisplaySize128x64>>, str: &str)
+where
+    I2C: embedded_hal_1::i2c::I2c
+{
+    let text_style = MonoTextStyleBuilder::new()
+    .font(&FONT_6X10)
+    .text_color(BinaryColor::On)
+    .build();
+
+    Text::with_baseline(str, Point::zero(), text_style, Baseline::Top)
+        .draw(display)
+        .unwrap();
+    display.flush().unwrap();
+    display.clear_buffer();
 }
 
 #[embassy_executor::main]
@@ -89,29 +105,16 @@ async fn main(_spawner: Spawner) {
         DisplayRotation::Rotate0,
     ).into_buffered_graphics_mode();
     display.init().unwrap();
-    let text_style = MonoTextStyleBuilder::new()
-    .font(&FONT_6X10)
-    .text_color(BinaryColor::On)
-    .build();
-
     loop {
         info!("led on!");
-        Text::with_baseline(get_bme280_result(&mut bme280).as_str(), Point::zero(), text_style, Baseline::Top)
-            .draw(&mut display)
-            .unwrap();
+        output_oled(&mut display, get_bme280_result(&mut bme280).as_str());
         led.set_high();
-        display.flush().unwrap();
-        display.clear_buffer();
 
         Timer::after_millis(1000).await;
 
         info!("led off!");
-        Text::with_baseline(get_bme280_result(&mut bme280).as_str(), Point::zero(), text_style, Baseline::Top)
-            .draw(&mut display)
-            .unwrap();
+        output_oled(&mut display, get_bme280_result(&mut bme280).as_str());
         led.set_low();
-        display.flush().unwrap();
-        display.clear_buffer();
 
         Timer::after_millis(1000).await;
     }
