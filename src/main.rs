@@ -100,11 +100,10 @@ async fn main(_spawner: Spawner) {
             .draw(&mut display)
             .unwrap();
         led.set_high();
-
         display.flush().unwrap();
-        Timer::after_millis(1000).await;
         display.clear_buffer();
-        display.flush().unwrap();
+
+        Timer::after_millis(1000).await;
 
         info!("led off!");
         Text::with_baseline(get_bme280_result(&mut bme280).as_str(), Point::zero(), text_style, Baseline::Top)
@@ -112,8 +111,8 @@ async fn main(_spawner: Spawner) {
             .unwrap();
         led.set_low();
         display.flush().unwrap();
-        Timer::after_millis(1000).await;
         display.clear_buffer();
-        display.flush().unwrap();
+
+        Timer::after_millis(1000).await;
     }
 }
